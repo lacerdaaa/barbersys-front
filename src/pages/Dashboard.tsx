@@ -1,7 +1,7 @@
 const Dashboard = () => {
   return (
     <div>
-      <h1> eu sou um frameworkd de bosta</h1>
+      <h1 className=""> eu sou um frameworkd de bosta</h1>
     </div>
   )
 };

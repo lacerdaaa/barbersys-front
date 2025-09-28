@@ -7,6 +7,7 @@ const Home = () => {
     <div>
       <h1>Olá meu amigo.</h1>
       <button onClick={() => setCounter(counter + 1)}>Clique agui</button>
+      <p>{counter}</p>
     </div>
   )
 }
