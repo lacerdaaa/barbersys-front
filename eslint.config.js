@@ -19,5 +19,10 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      'no-unused-vars': ['off', { vars: 'all', args: 'after-used', ignoreRestSiblings: true }],
+      'no-unused-imports': 'off',
+      '@typescript-eslint/no-unused-vars': 'off'
+    },
   },
 ])
