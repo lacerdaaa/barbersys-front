@@ -3,14 +3,14 @@ export interface Booking {
   clientId: string;
   barberId: string;
   barbershopId: string;
-  date: Date;
+  date: string;
   status: BookingStatus;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export enum BookingStatus {
-  PENDING,
-  CONFIRMED,
-  CANCELED,
+  PENDING = "PENDING",
+  CONFIRMED = "CONFIRMED",
+  CANCELED = "CANCELED",
 }

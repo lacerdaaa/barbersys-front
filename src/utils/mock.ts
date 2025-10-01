@@ -19,8 +19,8 @@ export const mockBarbershops: Barbershop[] = [
         expired: false
       }
     ],
-    createdAt: new Date('2024-01-15'),
-    updatedAt: new Date('2025-01-20'),
+    createdAt: new Date('2024-01-15').toISOString(),
+    updatedAt: new Date('2025-01-20').toISOString(),
     services: [
       { 
         id: '1', 
@@ -28,8 +28,8 @@ export const mockBarbershops: Barbershop[] = [
         name: 'Corte Masculino', 
         price: 35, 
         duration: 30,
-        createdAt: new Date('2024-01-15'),
-        updatedAt: new Date('2024-01-15'),
+        createdAt: new Date('2024-01-15').toISOString(),
+        updatedAt: new Date('2024-01-15').toISOString(),
         bookings: []
       },
       { 
@@ -38,8 +38,8 @@ export const mockBarbershops: Barbershop[] = [
         name: 'Barba', 
         price: 25, 
         duration: 20,
-        createdAt: new Date('2024-01-15'),
-        updatedAt: new Date('2024-01-15'),
+        createdAt: new Date('2024-01-15').toISOString(),
+        updatedAt: new Date('2024-01-15').toISOString(),
         bookings: []
       }
     ]
@@ -53,8 +53,8 @@ export const mockBarbershops: Barbershop[] = [
     phone: '(19) 3345-6789',
     ownerId: 'owner_2',
     invites: [],
-    createdAt: new Date('2024-02-10'),
-    updatedAt: new Date('2025-01-15'),
+    createdAt: new Date('2024-02-10').toISOString(),
+    updatedAt: new Date('2025-01-15').toISOString(),
     services: [
       { 
         id: '3', 
@@ -62,8 +62,8 @@ export const mockBarbershops: Barbershop[] = [
         name: 'Corte + Barba', 
         price: 55, 
         duration: 45,
-        createdAt: new Date('2024-02-10'),
-        updatedAt: new Date('2024-02-10'),
+        createdAt: new Date('2024-02-10').toISOString(),
+        updatedAt: new Date('2024-02-10').toISOString(),
         bookings: []
       },
       { 
@@ -72,8 +72,8 @@ export const mockBarbershops: Barbershop[] = [
         name: 'Corte Social', 
         price: 40, 
         duration: 35,
-        createdAt: new Date('2024-02-10'),
-        updatedAt: new Date('2024-02-10'),
+        createdAt: new Date('2024-02-10').toISOString(),
+        updatedAt: new Date('2024-02-10').toISOString(),
         bookings: []
       }
     ]
@@ -96,8 +96,8 @@ export const mockBarbershops: Barbershop[] = [
         expired: false
       }
     ],
-    createdAt: new Date('2024-03-05'),
-    updatedAt: new Date('2025-01-25'),
+    createdAt: new Date('2024-03-05').toISOString(),
+    updatedAt: new Date('2025-01-25').toISOString(),
     services: [
       { 
         id: '5', 
@@ -105,8 +105,8 @@ export const mockBarbershops: Barbershop[] = [
         name: 'Corte Premium', 
         price: 65, 
         duration: 40,
-        createdAt: new Date('2024-03-05'),
-        updatedAt: new Date('2024-03-05'),
+        createdAt: new Date('2024-03-05').toISOString(),
+        updatedAt: new Date('2024-03-05').toISOString(),
         bookings: []
       },
       { 
@@ -115,8 +115,8 @@ export const mockBarbershops: Barbershop[] = [
         name: 'Tratamento Capilar', 
         price: 80, 
         duration: 60,
-        createdAt: new Date('2024-03-05'),
-        updatedAt: new Date('2024-03-05'),
+        createdAt: new Date('2024-03-05').toISOString(),
+        updatedAt: new Date('2024-03-05').toISOString(),
         bookings: []
       }
     ]

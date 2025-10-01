@@ -6,7 +6,7 @@ export interface Service {
   name: string;
   price?: number;
   duration?: number;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: string;
+  updatedAt?: string;
   bookings?: Booking[];
 }
