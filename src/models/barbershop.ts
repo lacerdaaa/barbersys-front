@@ -5,12 +5,12 @@ export interface Barbershop {
   id: string;
   name: string;
   address: string;
-  latitude: number;
-  longitude: number;
-  phone: string;
-  ownerId: string;
-  invites: Invite[];
-  createdAt: Date;
-  updatedAt: Date;
-  services: Service[];
-};
+  latitude?: number | null;
+  longitude?: number | null;
+  phone?: string | null;
+  ownerId?: string | null;
+  invites?: Invite[];
+  createdAt?: string;
+  updatedAt?: string;
+  services?: Service[];
+}
