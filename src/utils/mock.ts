@@ -1,6 +1,6 @@
 import type { Barbershop } from "../models/barbershop";
 
-const mockBarbershops: Barbershop[] = [
+export const mockBarbershops: Barbershop[] = [
   {
     id: '1',
     name: 'Barbearia Central',
