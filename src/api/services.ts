@@ -2,10 +2,11 @@ import { api } from "./client";
 import type { Service } from "../models/service";
 
 export interface ServicePayload {
-  barbershopId: string;
+  barbershopId: string; // not used by backend create; kept for UI convenience
   name: string;
   price?: number;
   duration?: number;
+  barberIds?: string[];
 }
 
 export const listServices = async () => {

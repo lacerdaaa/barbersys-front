@@ -8,11 +8,11 @@ export interface CreateBarbershopPayload {
   latitude?: number;
   longitude?: number;
   phone?: string;
+  description?: string;
 }
 
 export interface CreateInvitePayload {
-  barbershopId: string;
-  expiresAt?: string;
+  daysValid: number;
 }
 
 export interface ListBarbershopsParams {
@@ -46,8 +46,18 @@ export const getBarberShop = async (barbershopId: string) => {
   return data;
 };
 
+export const getMyBarberShop = async () => {
+  const { data } = await api.get<Barbershop | null>(`/me/barber-shop`);
+  return data;
+};
+
 export const createBarberShop = async (payload: CreateBarbershopPayload) => {
   const { data } = await api.post<Barbershop>("/barber-shop", payload);
+  return data;
+};
+
+export const updateBarberShop = async (barbershopId: string, payload: Partial<CreateBarbershopPayload>) => {
+  const { data } = await api.patch<Barbershop>(`/barber-shop/${barbershopId}`, payload);
   return data;
 };
 

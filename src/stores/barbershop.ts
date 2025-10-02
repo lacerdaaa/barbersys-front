@@ -6,7 +6,9 @@ import {
   createBarberShop,
   createBarberShopInvite,
   getBarberShop,
+  getMyBarberShop,
   listBarberShops,
+  updateBarberShop,
   type CreateBarbershopPayload,
   type CreateInvitePayload,
   type ListBarbershopsParams,
@@ -24,7 +26,9 @@ interface BarbershopState {
   fetchBarbershops: (params?: ListBarbershopsParams) => Promise<void>;
   setPage: (page: number) => void;
   fetchBarbershop: (barbershopId: string) => Promise<Barbershop | null>;
+  fetchMyBarbershop: () => Promise<Barbershop | null>;
   addBarbershop: (payload: CreateBarbershopPayload) => Promise<Barbershop | null>;
+  updateBarbershop: (barbershopId: string, payload: Partial<CreateBarbershopPayload>) => Promise<Barbershop | null>;
   createInvite: (payload: CreateInvitePayload) => Promise<Invite | null>;
   clearError: () => void;
 }
@@ -82,6 +86,18 @@ export const useBarbershopStore = create<BarbershopState>((set, get) => ({
     }
   },
 
+  fetchMyBarbershop: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const data = await getMyBarberShop();
+      set({ currentBarbershop: data, isLoading: false });
+      return data ?? null;
+    } catch (error) {
+      set({ error: getErrorMessage(error), isLoading: false });
+      return null;
+    }
+  },
+
   addBarbershop: async (payload) => {
     set({ isLoading: true, error: null });
     try {
@@ -100,20 +116,25 @@ export const useBarbershopStore = create<BarbershopState>((set, get) => ({
     }
   },
 
+  updateBarbershop: async (barbershopId, payload) => {
+    set({ isLoading: true, error: null });
+    try {
+      const updated = await updateBarberShop(barbershopId, payload);
+      set({ currentBarbershop: updated, isLoading: false });
+      return updated;
+    } catch (error) {
+      set({ error: getErrorMessage(error), isLoading: false });
+      return null;
+    }
+  },
+
   createInvite: async (payload) => {
     set({ isLoading: true, error: null });
     try {
       const invite = await createBarberShopInvite(payload);
-      const barbershops = get().barbershops.map((shop) =>
-        shop.id === payload.barbershopId
-          ? {
-              ...shop,
-              invites: shop.invites ? [invite, ...shop.invites] : [invite],
-            }
-          : shop,
-      );
-
-      set({ barbershops, isLoading: false });
+      const current = get().currentBarbershop;
+      const updatedCurrent = current ? { ...current, invites: current.invites ? [invite, ...current.invites] : [invite] } : current;
+      set({ currentBarbershop: updatedCurrent, isLoading: false });
       return invite;
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false });
