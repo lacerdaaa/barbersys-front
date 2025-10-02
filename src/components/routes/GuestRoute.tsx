@@ -18,7 +18,10 @@ const GuestRoute = () => {
   if (user?.role === Role.CLIENT) {
     return <Navigate to="/" replace />;
   }
-
+  if (user?.role === Role.BARBER) {
+    return <Navigate to="/barber" replace />;
+  }
+  // OWNER
   return <Navigate to="/dashboard" replace />;
 };
 
