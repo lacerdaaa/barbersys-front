@@ -19,6 +19,7 @@ import {
 import { useBarbershopStore } from "../stores/barbershop";
 import { useAuthStore } from "../stores/auth";
 import UserProfileDialog from "../components/profile/UserProfileDialog";
+import CreateBookingPopover from "../components/booking/CreateBookingPopover";
 import type { ListBarbershopsParams } from "../api/barbershops";
 
 const registrationOptions = [
@@ -662,18 +663,28 @@ const Home = () => {
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Serviços</h3>
                     <div className="space-y-3">
                       {(selectedBarbershop.services ?? []).map((service) => (
-                        <div key={service.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                          <div>
-                            <h4 className="font-medium text-gray-900">{service.name}</h4>
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <Clock className="w-4 h-4" />
-                              <span>{service.duration ? `${service.duration} min` : "Duração sob consulta"}</span>
+                        <CreateBookingPopover
+                          key={service.id}
+                          barbershop={selectedBarbershop}
+                          service={service}
+                          onRequireAuth={() => setIsRegisterDialogOpen(true)}
+                        >
+                          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                            <div>
+                              <h4 className="font-medium text-gray-900">{service.name}</h4>
+                              <div className="flex items-center gap-2 text-sm text-gray-600">
+                                <Clock className="w-4 h-4" />
+                                <span>{service.duration ? `${service.duration} min` : "Duração sob consulta"}</span>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-lg font-semibold text-gray-900">
+                                {service.price ? formatPrice(service.price) : "Sob consulta"}
+                              </div>
+                              <div className="text-[11px] text-blue-700">Agendar</div>
                             </div>
                           </div>
-                          <div className="text-lg font-semibold text-gray-900">
-                            {service.price ? formatPrice(service.price) : "Sob consulta"}
-                          </div>
-                        </div>
+                        </CreateBookingPopover>
                       ))}
                       {(selectedBarbershop.services ?? []).length === 0 && (
                         <p className="text-sm text-gray-500">Esta barbearia ainda não cadastrou serviços.</p>
@@ -682,9 +693,9 @@ const Home = () => {
                   </div>
 
                   <div className="mt-6 pt-6 border-t">
-                    <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
-                      Agendar horário
-                    </button>
+                    <p className="text-sm text-gray-600">
+                      Selecione um serviço para agendar.
+                    </p>
                   </div>
                 </div>
               </>
@@ -736,6 +747,7 @@ const Home = () => {
           onOpenChange={setIsProfileDialogOpen}
         />
       )}
+
     </div>
   );
 };
