@@ -205,7 +205,6 @@ const Dashboard = () => {
                         <th className="px-2 py-2">Serviço</th>
                         <th className="px-2 py-2">Cliente</th>
                         <th className="px-2 py-2">Status</th>
-                        <th className="px-2 py-2">Ações</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -215,10 +214,6 @@ const Dashboard = () => {
                           <td className="px-2 py-2">{b.service?.name ?? ""}</td>
                           <td className="px-2 py-2">{b.client?.name ?? ""}</td>
                           <td className="px-2 py-2">{b.status}</td>
-                          <td className="px-2 py-2 space-x-2">
-                            <button onClick={() => handleBookingStatus(b.id, "CONFIRMED")} className="text-xs rounded bg-green-600 text-white px-2 py-1">Confirmar</button>
-                            <button onClick={() => handleBookingStatus(b.id, "CANCELED")} className="text-xs rounded bg-red-600 text-white px-2 py-1">Cancelar</button>
-                          </td>
                         </tr>
                       ))}
                     </tbody>
