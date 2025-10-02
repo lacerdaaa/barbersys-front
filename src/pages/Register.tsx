@@ -1,6 +1,6 @@
 import type { FormEvent } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useAuthStore } from "../stores/auth";
 import { Role } from "../models/user";
 import { Loader2, ShieldCheck, Users, UserRound } from "lucide-react";
@@ -28,14 +28,10 @@ const roleOptions = [
 
 export default function RegisterPage() {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const { register, token, isLoading, error, clearError } = useAuthStore((state) => ({
-    register: state.register,
-    token: state.token,
-    isLoading: state.isLoading,
-    error: state.error,
-    clearError: state.clearError,
-  }));
+  const registerUser = useAuthStore((state) => state.register);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const error = useAuthStore((state) => state.error);
+  const clearError = useAuthStore((state) => state.clearError);
 
   const initialRoleFromQuery = useMemo(() => {
     const roleParam = searchParams.get("role");
@@ -50,14 +46,13 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [barberShopId, setBarberShopId] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (token) {
-      navigate("/dashboard");
-    }
-  }, [token, navigate]);
+  const clearFormError = () => {
+    if (formError) setFormError(null);
+    if (error) clearError();
+  };
 
   useEffect(() => {
     return () => clearError();
@@ -66,6 +61,14 @@ export default function RegisterPage() {
   useEffect(() => {
     setSelectedRole(initialRoleFromQuery);
   }, [initialRoleFromQuery]);
+
+  useEffect(() => {
+    if (selectedRole !== Role.BARBER && inviteCode) {
+      setInviteCode("");
+      clearFormError();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRole, inviteCode]);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -76,12 +79,14 @@ export default function RegisterPage() {
       return;
     }
 
-    await register({
+    const formattedInvite = inviteCode.trim();
+
+    await registerUser({
       name,
       email,
       password,
       role: selectedRole,
-      barberShopId: barberShopId ? barberShopId : undefined,
+      inviteCode: selectedRole === Role.BARBER && formattedInvite ? formattedInvite : undefined,
     });
   }
 
@@ -102,7 +107,10 @@ export default function RegisterPage() {
               <button
                 key={role}
                 type="button"
-                onClick={() => setSelectedRole(role)}
+                onClick={() => {
+                  clearFormError();
+                  setSelectedRole(role);
+                }}
                 className={`rounded-xl border p-4 text-left transition-all ${
                   isActive
                     ? "border-blue-500 bg-blue-50 shadow-sm"
@@ -128,7 +136,10 @@ export default function RegisterPage() {
               id="name"
               required
               value={name}
-              onChange={(event) => setName(event.target.value)}
+              onChange={(event) => {
+                clearFormError();
+                setName(event.target.value);
+              }}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Seu nome"
             />
@@ -143,7 +154,10 @@ export default function RegisterPage() {
               type="email"
               required
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) => {
+                clearFormError();
+                setEmail(event.target.value);
+              }}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="seu@email.com"
             />
@@ -158,7 +172,10 @@ export default function RegisterPage() {
               type="password"
               required
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) => {
+                clearFormError();
+                setPassword(event.target.value);
+              }}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="••••••••"
             />
@@ -173,21 +190,28 @@ export default function RegisterPage() {
               type="password"
               required
               value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
+              onChange={(event) => {
+                clearFormError();
+                setConfirmPassword(event.target.value);
+              }}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="••••••••"
             />
           </div>
 
-          {selectedRole !== Role.CLIENT && (
+          {selectedRole === Role.BARBER && (
             <div className="sm:col-span-2">
-              <label htmlFor="barbershop-id" className="mb-1 block text-sm font-medium text-gray-700">
-                Código da barbearia (opcional)
+              <label htmlFor="invite-code" className="mb-1 block text-sm font-medium text-gray-700">
+                Código do convite da barbearia
               </label>
               <input
-                id="barbershop-id"
-                value={barberShopId}
-                onChange={(event) => setBarberShopId(event.target.value)}
+                id="invite-code"
+                value={inviteCode}
+                required={selectedRole === Role.BARBER}
+                onChange={(event) => {
+                  clearFormError();
+                  setInviteCode(event.target.value);
+                }}
                 className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Informe o código enviado pelo dono da barbearia"
               />

@@ -1,27 +1,18 @@
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuthStore } from "../stores/auth";
 import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
-  const navigate = useNavigate();
-  const { login, token, isLoading, error, clearError } = useAuthStore((state) => ({
-    login: state.login,
-    token: state.token,
-    isLoading: state.isLoading,
-    error: state.error,
-    clearError: state.clearError,
-  }));
+  const loginUser = useAuthStore((state) => state.login);
+  const token = useAuthStore((state) => state.token);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const error = useAuthStore((state) => state.error);
+  const clearError = useAuthStore((state) => state.clearError);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  useEffect(() => {
-    if (token) {
-      navigate("/dashboard");
-    }
-  }, [token, navigate]);
 
   useEffect(() => {
     return () => clearError();
@@ -29,7 +20,7 @@ export default function LoginPage() {
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    await login(email, password);
+    await loginUser(email, password);
   }
 
   return (
@@ -58,7 +49,10 @@ export default function LoginPage() {
               type="email"
               required
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) => {
+                if (error) clearError();
+                setEmail(event.target.value);
+              }}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="seu@email.com"
             />
@@ -73,7 +67,10 @@ export default function LoginPage() {
               type="password"
               required
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) => {
+                if (error) clearError();
+                setPassword(event.target.value);
+              }}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="••••••••"
             />

@@ -9,6 +9,7 @@ import {
   listBarberShops,
   type CreateBarbershopPayload,
   type CreateInvitePayload,
+  type ListBarbershopsParams,
 } from "../api/barbershops";
 
 interface BarbershopState {
@@ -16,7 +17,8 @@ interface BarbershopState {
   currentBarbershop: Barbershop | null;
   isLoading: boolean;
   error: string | null;
-  fetchBarbershops: () => Promise<void>;
+  total: number;
+  fetchBarbershops: (params?: ListBarbershopsParams) => Promise<void>;
   fetchBarbershop: (barbershopId: string) => Promise<Barbershop | null>;
   addBarbershop: (payload: CreateBarbershopPayload) => Promise<Barbershop | null>;
   createInvite: (payload: CreateInvitePayload) => Promise<Invite | null>;
@@ -25,8 +27,8 @@ interface BarbershopState {
 
 const getErrorMessage = (error: unknown) => {
   if (isAxiosError(error)) {
-    const data = error.response?.data as { message?: string } | undefined;
-    return data?.message ?? "Não foi possível carregar os dados.";
+    const data = error.response?.data as { message?: string; error?: string } | undefined;
+    return data?.message ?? data?.error ?? "Não foi possível carregar os dados.";
   }
   return "Algo deu errado. Tente novamente.";
 };
@@ -36,14 +38,15 @@ export const useBarbershopStore = create<BarbershopState>((set, get) => ({
   currentBarbershop: null,
   isLoading: false,
   error: null,
+  total: 0,
 
-  fetchBarbershops: async () => {
+  fetchBarbershops: async (params) => {
     set({ isLoading: true, error: null });
     try {
-      const data = await listBarberShops();
-      set({ barbershops: data, isLoading: false });
+      const { data, total } = await listBarberShops(params);
+      set({ barbershops: data, total, isLoading: false });
     } catch (error) {
-      set({ error: getErrorMessage(error), isLoading: false });
+      set({ error: getErrorMessage(error), isLoading: false, total: 0, barbershops: [] });
     }
   },
 
@@ -63,10 +66,12 @@ export const useBarbershopStore = create<BarbershopState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const barbershop = await createBarberShop(payload);
+      const { barbershops, total } = get();
       set({
-        barbershops: [barbershop, ...get().barbershops],
+        barbershops: [barbershop, ...barbershops],
         currentBarbershop: barbershop,
         isLoading: false,
+        total: total + 1,
       });
       return barbershop;
     } catch (error) {

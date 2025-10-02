@@ -1,9 +1,11 @@
 import { Dialog, Select } from "radix-ui";
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import type { Barbershop } from "../models/barbershop";
-import { Clock, Filter, MapPin, Navigation, Phone, Search, Star, Users } from "lucide-react";
+import { Clock, Filter, LogOut, MapPin, Navigation, Phone, Search, Star, UserCircle2, Users } from "lucide-react";
 import { useBarbershopStore } from "../stores/barbershop";
+import { useAuthStore } from "../stores/auth";
+import UserProfileDialog from "../components/profile/UserProfileDialog";
 
 const registrationOptions = [
   {
@@ -30,30 +32,53 @@ const Home = () => {
   const [selectedBarbershop, setSelectedBarbershop] = useState<Barbershop | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>("distance");
   const [isRegisterDialogOpen, setIsRegisterDialogOpen] = useState(false);
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
 
-  const { barbershops, fetchBarbershops, isLoading, error } = useBarbershopStore((state) => ({
-    barbershops: state.barbershops,
-    fetchBarbershops: state.fetchBarbershops,
-    isLoading: state.isLoading,
-    error: state.error,
-  }));
+  const barbershops = useBarbershopStore((state) => state.barbershops);
+  const fetchBarbershops = useBarbershopStore((state) => state.fetchBarbershops);
+  const isLoading = useBarbershopStore((state) => state.isLoading);
+  const error = useBarbershopStore((state) => state.error);
+  const total = useBarbershopStore((state) => state.total);
+  const user = useAuthStore((state) => state.user);
+  const token = useAuthStore((state) => state.token);
+  const logout = useAuthStore((state) => state.logout);
+  const getProfile = useAuthStore((state) => state.getProfile);
+  const navigate = useNavigate();
+  const firstName = user?.name?.split(" ")[0] ?? user?.name ?? "Perfil";
+
+  const [debouncedRegion, setDebouncedRegion] = useState("");
+  const fetchRef = useRef(fetchBarbershops);
 
   useEffect(() => {
-    fetchBarbershops();
+    fetchRef.current = fetchBarbershops;
   }, [fetchBarbershops]);
 
-  const filteredBarbershops = useMemo(() => {
-    const normalizedTerm = searchTerm.trim().toLowerCase();
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedRegion(searchTerm.trim());
+    }, 300);
 
-    const filtered = normalizedTerm
-      ? barbershops.filter((shop) => {
-          const name = shop.name?.toLowerCase() ?? "";
-          const address = shop.address?.toLowerCase() ?? "";
-          return name.includes(normalizedTerm) || address.includes(normalizedTerm);
-        })
-      : barbershops;
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
 
-    return filtered.slice().sort((a, b) => {
+  useEffect(() => {
+    const params = debouncedRegion ? { region: debouncedRegion } : undefined;
+    fetchRef.current(params);
+  }, [debouncedRegion]);
+
+  useEffect(() => {
+    if (token) {
+      setIsRegisterDialogOpen(false);
+      if (!user) {
+        getProfile();
+      }
+    } else {
+      setIsProfileDialogOpen(false);
+    }
+  }, [token, user, getProfile]);
+
+  const sortedBarbershops = useMemo(() => {
+    return barbershops.slice().sort((a, b) => {
       if (sortBy === "name") {
         return (a.name ?? "").localeCompare(b.name ?? "");
       }
@@ -66,7 +91,7 @@ const Home = () => {
 
       return 0;
     });
-  }, [barbershops, searchTerm, sortBy]);
+  }, [barbershops, sortBy]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -89,20 +114,47 @@ const Home = () => {
             </div>
 
             <nav className="flex items-center gap-3 self-start lg:self-auto">
-              <Link
-                to="/login"
-                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                Entrar
-              </Link>
-              <button
-                type="button"
-                onClick={() => setIsRegisterDialogOpen(true)}
-                className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors"
-              >
-                <Users className="h-4 w-4" />
-                Quero me cadastrar
-              </button>
+              {token && user ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setIsProfileDialogOpen(true)}
+                    className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <UserCircle2 className="h-4 w-4" />
+                    {firstName}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      logout();
+                      setIsProfileDialogOpen(false);
+                      navigate("/");
+                    }}
+                    className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm bg-red-500 hover:bg-red-600 transition-colors"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sair
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    Entrar
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setIsRegisterDialogOpen(true)}
+                    className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors"
+                  >
+                    <Users className="h-4 w-4" />
+                    Quero me cadastrar
+                  </button>
+                </>
+              )}
             </nav>
           </div>
 
@@ -153,7 +205,7 @@ const Home = () => {
           <>
             <div className="mb-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                {filteredBarbershops.length} barbearia(s) encontrada(s)
+                {total} barbearia(s) encontrada(s)
               </h2>
               <p className="text-gray-600">Clique em uma barbearia para ver mais detalhes.</p>
             </div>
@@ -166,7 +218,7 @@ const Home = () => {
 
             {/* Barbershop Grid */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredBarbershops.map((barbershop) => (
+              {sortedBarbershops.map((barbershop) => (
                 <button
                   type="button"
                   key={barbershop.id}
@@ -229,7 +281,7 @@ const Home = () => {
             </div>
 
             {/* Empty State */}
-            {filteredBarbershops.length === 0 && !error && (
+            {sortedBarbershops.length === 0 && !error && (
               <div className="text-center py-12">
                 <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
                   <Search className="w-8 h-8 text-gray-400" />
@@ -331,7 +383,7 @@ const Home = () => {
       </Dialog.Root>
 
       {/* Register dialog */}
-      <Dialog.Root open={isRegisterDialogOpen} onOpenChange={setIsRegisterDialogOpen}>
+      <Dialog.Root open={isRegisterDialogOpen && !token} onOpenChange={setIsRegisterDialogOpen}>
         <Dialog.Portal>
           <Dialog.Overlay className="bg-black bg-opacity-50 fixed inset-0 z-40" />
           <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl p-6 z-50 max-w-lg w-full mx-4">
@@ -367,6 +419,13 @@ const Home = () => {
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
+
+      {user && (
+        <UserProfileDialog
+          open={isProfileDialogOpen}
+          onOpenChange={setIsProfileDialogOpen}
+        />
+      )}
     </div>
   );
 };

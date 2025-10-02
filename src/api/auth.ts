@@ -12,12 +12,18 @@ export interface RegisterPayload {
   email: string;
   password: string;
   role: Role;
-  barberShopId?: string;
+  inviteCode?: string;
 }
 
 export interface AuthResponse {
   token: string;
   user: User;
+}
+
+export interface RegisterResponse {
+  user: User;
+  message?: string;
+  token?: string;
 }
 
 export const login = async (payload: LoginPayload) => {
@@ -26,7 +32,7 @@ export const login = async (payload: LoginPayload) => {
 };
 
 export const register = async (payload: RegisterPayload) => {
-  const { data } = await api.post<AuthResponse>("/auth/register", payload);
+  const { data } = await api.post<RegisterResponse>("/auth/register", payload);
   return data;
 };
 

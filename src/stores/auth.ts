@@ -22,8 +22,8 @@ interface AuthState {
 
 const getErrorMessage = (error: unknown) => {
   if (isAxiosError(error)) {
-    const data = error.response?.data as { message?: string } | undefined;
-    return data?.message ?? "Não foi possível completar a operação.";
+    const data = error.response?.data as { message?: string; error?: string } | undefined;
+    return data?.message ?? data?.error ?? "Não foi possível completar a operação.";
   }
   return "Algo deu errado. Tente novamente.";
 };
@@ -49,7 +49,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   register: async (payload) => {
     set({ isLoading: true, error: null });
     try {
-      const { token, user } = await registerRequest(payload);
+      await registerRequest(payload);
+      const { token, user } = await loginRequest({ email: payload.email, password: payload.password });
       localStorage.setItem("token", token);
       set({ user, token, isLoading: false });
     } catch (error) {

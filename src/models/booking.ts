@@ -1,3 +1,5 @@
+import type { Service } from "./service";
+
 export interface Booking {
   id: string;
   clientId: string;
@@ -7,6 +9,7 @@ export interface Booking {
   status: BookingStatus;
   createdAt: string;
   updatedAt: string;
+  service?: Service;
 }
 
 export enum BookingStatus {

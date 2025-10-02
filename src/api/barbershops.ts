@@ -15,9 +15,26 @@ export interface CreateInvitePayload {
   expiresAt?: string;
 }
 
-export const listBarberShops = async () => {
-  const { data } = await api.get<Barbershop[]>("/barber-shops");
-  return data;
+export interface ListBarbershopsParams {
+  region?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface ListBarbershopsResponse {
+  data: Barbershop[];
+  total: number;
+}
+
+export const listBarberShops = async (params?: ListBarbershopsParams): Promise<ListBarbershopsResponse> => {
+  const response = await api.get<Barbershop[]>("/barber-shops", { params });
+  const totalHeader = response.headers?.["x-total-count"] ?? response.headers?.["X-Total-Count"];
+  const total = Number(totalHeader ?? response.data.length ?? 0);
+
+  return {
+    data: response.data,
+    total: Number.isFinite(total) ? total : response.data.length,
+  };
 };
 
 export const getBarberShop = async (barbershopId: string) => {

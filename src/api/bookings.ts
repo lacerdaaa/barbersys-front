@@ -3,6 +3,7 @@ import type { Booking, BookingStatus } from "../models/booking";
 
 export interface CreateBookingPayload {
   serviceId: string;
+  barbershopId: string;
   date: string;
   barberId?: string;
 }
