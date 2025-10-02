@@ -48,7 +48,7 @@ const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps) => {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="bg-black bg-opacity-50 fixed inset-0 z-40" />
+        <Dialog.Overlay className="fixed inset-0 z-40 bg-gray-900/30 backdrop-blur-sm" />
         <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto z-50">
           <div className="p-6 border-b border-gray-100">
             <Dialog.Title className="text-2xl font-semibold text-gray-900">Meu perfil</Dialog.Title>

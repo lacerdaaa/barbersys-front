@@ -19,6 +19,10 @@ export interface ListBarbershopsParams {
   region?: string;
   page?: number;
   limit?: number;
+  orderBy?: 'name' | 'distance' | 'createdAt';
+  latitude?: number;
+  longitude?: number;
+  radius?: number;
 }
 
 export interface ListBarbershopsResponse {

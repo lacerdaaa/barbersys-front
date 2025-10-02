@@ -13,4 +13,5 @@ export interface Barbershop {
   createdAt?: string;
   updatedAt?: string;
   services?: Service[];
+  distance?: number | null;
 }

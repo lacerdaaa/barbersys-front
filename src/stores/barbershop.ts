@@ -17,8 +17,12 @@ interface BarbershopState {
   currentBarbershop: Barbershop | null;
   isLoading: boolean;
   error: string | null;
+  page: number;
+  limit: number;
+  params: ListBarbershopsParams;
   total: number;
   fetchBarbershops: (params?: ListBarbershopsParams) => Promise<void>;
+  setPage: (page: number) => void;
   fetchBarbershop: (barbershopId: string) => Promise<Barbershop | null>;
   addBarbershop: (payload: CreateBarbershopPayload) => Promise<Barbershop | null>;
   createInvite: (payload: CreateInvitePayload) => Promise<Invite | null>;
@@ -38,16 +42,32 @@ export const useBarbershopStore = create<BarbershopState>((set, get) => ({
   currentBarbershop: null,
   isLoading: false,
   error: null,
+  page: 1,
+  limit: 9,
+  params: {},
   total: 0,
 
   fetchBarbershops: async (params) => {
-    set({ isLoading: true, error: null });
+    const currentState = get();
+    const mergedParams: ListBarbershopsParams = {
+      ...currentState.params,
+      ...params,
+      page: params?.page ?? currentState.page,
+      limit: params?.limit ?? currentState.limit,
+    };
+
+    set({ isLoading: true, error: null, params: mergedParams, page: mergedParams.page ?? 1, limit: mergedParams.limit ?? currentState.limit });
     try {
-      const { data, total } = await listBarberShops(params);
+      const { data, total } = await listBarberShops(mergedParams);
       set({ barbershops: data, total, isLoading: false });
     } catch (error) {
       set({ error: getErrorMessage(error), isLoading: false, total: 0, barbershops: [] });
     }
+  },
+
+  setPage: (page) => {
+    const { fetchBarbershops, limit, params } = get();
+    fetchBarbershops({ ...params, page, limit });
   },
 
   fetchBarbershop: async (barbershopId) => {

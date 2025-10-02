@@ -10,6 +10,15 @@ export interface Booking {
   createdAt: string;
   updatedAt: string;
   service?: Service;
+  barbershop?: {
+    id: string;
+    name: string;
+  };
+  client?: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
 
 export enum BookingStatus {
